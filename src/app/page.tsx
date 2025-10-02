@@ -14,11 +14,11 @@ import { currentUser } from "@clerk/nextjs/server"
 import db from "@/lib/db.ts"
 import CreatePost from "@/components/CreatePost.tsx"
 
-export default function Home() {
+export default async function Home() {
 
-  db()
+  await db()
 
-  const user = currentUser()
+  const user = await currentUser()
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">

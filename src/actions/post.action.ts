@@ -26,17 +26,7 @@ export async function createPost(content, imageUrl) {
     image: imageUrl,
     author: dbUser._id
   })
-  
+
   console.log(post)
-
-  return {
-  _id: post._id.toString(),
-  content: post.content,
-  image: post.image,
-  author: post.author.toString(),
-  createdAt: post.createdAt?.toISOString(),
-  updatedAt: post.updatedAt?.toISOString(),
-}
-
 
 }

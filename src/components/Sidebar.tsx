@@ -10,7 +10,7 @@ import { LinkIcon, MapPinIcon } from "lucide-react";
 
 export default async function Sidebar() {
 
-  const authUser = currentUser()
+  const authUser = await currentUser()
   if (!authUser) return <UnAuthenticatedSidebar />
 
   const user = await getUserByClerkId(authUser.id)
@@ -28,7 +28,7 @@ export default async function Sidebar() {
               target="_blank"
             >
               <Avatar className="w-20 h-20 border-2 ">
-                <AvatarImage src={user.image || "/avatar.png"} />
+                <AvatarImage src={user.image} />
               </Avatar>
 
               <div className="mt-4 space-y-1">

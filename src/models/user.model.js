@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     image: { type: String },
     location: { type: String },
     website: { type: String },
+    clerkId: { type: String, unique: true, required: true },
   },
   { timestamps: true }
 );
