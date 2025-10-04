@@ -26,7 +26,14 @@ export default function CreatePost() {
     setIsPosting(true)
 
     try {
-      await createPost(content, imageUrl)
+      const post = await createPost(content, imageUrl)
+
+      if (post.success) {
+        setContent("")
+        setImageUrl("")
+        setShowImageUpload(false)
+      }
+
     }
 
     catch (err) {

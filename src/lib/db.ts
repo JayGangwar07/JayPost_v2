@@ -8,7 +8,7 @@ async function connectDB() {
   }
 
   catch (error) {
-    console.error("src/lib/index.ts  MongoDB connection error: ", error)
+    console.error("src/utils/db.ts:  MongoDB connection error: ", error)
     process.exit(1)
   }
 

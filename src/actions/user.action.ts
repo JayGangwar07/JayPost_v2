@@ -13,7 +13,7 @@ export async function syncUser() {
     const user = await currentUser()
 
     if (!userId || !user) return;
-    
+
 
     const existingUser = await User.findOne({
       $or: [
@@ -45,54 +45,79 @@ export async function syncUser() {
 
 export async function getUserByClerkId(clerkId: string) {
 
-  const user = await User.aggregate([
+  const user = await currentUser()
+
+  const result = await User.aggregate([
     {
       $match: {
-        clerkId
-      }
+        $or: [
+          { clerkId },
+          { email: user.emailAddresses[0].emailAddress }
+        ]
+      },
     },
     {
       $lookup: {
         from: "follows",
         localField: "_id",
         foreignField: "following",
-        as: "followers"
-      }
+        as: "followers",
+      },
     },
     {
       $lookup: {
         from: "follows",
         localField: "_id",
-        foreignField: "followers",
-        as: "following"
-      }
+        foreignField: "follower",
+        as: "following",
+      },
     },
     {
       $lookup: {
         from: "posts",
         localField: "_id",
         foreignField: "author",
-        as: "posts"
-      }
+        as: "posts",
+      },
     },
-  ])
+    {
+      $addFields: {
+        _count: {
+          followers: { $size: "$followers" },
+          following: { $size: "$following" },
+          posts: { $size: "$posts" },
+        },
+      },
+    },
+    {
+      $project: {
+        username: 1,
+        email: 1,
+        name: 1,
+        bio: 1,
+        image: 1,
+        location: 1,
+        website: 1,
+        followers: 1,
+        following: 1,
+        posts: 1,
+      },
+    },
+  ]);
 
-  console.log(user)
-
-  return user
-
+  return result[0] || null;
 }
 
-export async function getDbUserId() {
 
+export async function getDbUserId() {
+  
   const { userId: clerkId } = await auth()
 
-  if (!clerkId) throw new Error("Unauthorized")
+  if (!clerkId) return null;
 
   const user = await getUserByClerkId(clerkId)
 
   if (!user) throw new Error("User not found")
 
-  return user._id
-
+  return user._id;
 }

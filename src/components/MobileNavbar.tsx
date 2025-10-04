@@ -43,14 +43,15 @@ function MobileNavbar() {
           <Button variant="ghost" size="icon">
             <MenuIcon className="h-5 w-5" />
           </Button>
-        </SheetTrigger><SheetContent side="right" className="w-[300px] px-6">
+        </SheetTrigger>
+        <SheetContent side="right" className="w-[300px] px-6">
           <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
+            <SheetTitle className="">Menu</SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col space-y-4 mt-6 px-2">
             <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
               <Link href="/">
-                <HomeIcon className="w-4 h-4" />
+                <HomeIcon className="w-4 h-4 text-xl" />
                 Home
               </Link>
             </Button>
@@ -59,26 +60,26 @@ function MobileNavbar() {
               <>
                 <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
                   <Link href="/notifications">
-                    <BellIcon className="w-4 h-4" />
+                    <BellIcon className="w-4 h-4 text-xl" />
                     Notifications
                   </Link>
                 </Button>
                 <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
                   <Link href="/profile">
-                    <UserIcon className="w-4 h-4" />
+                    <UserIcon className="w-4 h-4 text-xl" />
                     Profile
                   </Link>
                 </Button>
                 <SignOutButton>
                   <Button variant="ghost" className="flex items-center gap-3 justify-start w-full">
-                    <LogOutIcon className="w-4 h-4" />
+                    <LogOutIcon className="w-4 h-4 text-xl" />
                     Logout
                   </Button>
                 </SignOutButton>
               </>
             ) : (
               <SignInButton mode="modal">
-                <Button variant="default" className="w-full">
+                <Button variant="default" className="w-full text-xl">
                   Sign In
                 </Button>
               </SignInButton>

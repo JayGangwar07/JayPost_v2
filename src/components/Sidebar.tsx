@@ -25,7 +25,6 @@ export default async function Sidebar() {
             <Link
               href={`/profile/${user.username}`}
               className="flex flex-col items-center justify-center"
-              target="_blank"
             >
               <Avatar className="w-20 h-20 border-2 ">
                 <AvatarImage src={user.image} />
@@ -43,12 +42,12 @@ export default async function Sidebar() {
               <Separator className="my-4" />
               <div className="flex justify-between">
                 <div>
-                  <p className="font-medium">{user?.following?.length}</p>
+                  <p className="font-medium">{user?._count?.following}</p>
                   <p className="text-xs text-muted-foreground">Following</p>
                 </div>
                 <Separator orientation="vertical" />
                 <div>
-                  <p className="font-medium">{user?.followers?.length}</p>
+                  <p className="font-medium">{user?._count?.followers}</p>
                   <p className="text-xs text-muted-foreground">Followers</p>
                 </div>
               </div>

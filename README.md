@@ -1,6 +1,6 @@
 This is Atom - A social media app made for fun by Jay Gangwar
 
-#Tech Stack:-
+## Tech Stack:-
 
 NextJS(tsx)
 MongoDB
