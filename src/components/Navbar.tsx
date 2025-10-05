@@ -4,11 +4,15 @@ import Link from "next/link";
 import DesktopNavbar from "./DesktopNavbar.tsx";
 import MobileNavbar from "./MobileNavbar.tsx";
 import { currentUser } from "@clerk/nextjs/server";
-import { syncUser } from "@/actions/user.action.ts";
+import { syncUser, getRandomUsers } from "@/actions/user.action.ts";
 
 async function Navbar() {
   const user = await currentUser();
-    if (user) await syncUser(); // POST
+  if (user) await syncUser(); // POST
+
+  const randoms = await getRandomUsers()
+
+  console.log("Randoms: ",randoms)
 
   return (
     <nav className="sticky top-0 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 px-2">

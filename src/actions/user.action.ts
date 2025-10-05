@@ -2,6 +2,7 @@
 
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { User } from "@/models/user.model.js"
+import { Follows } from "@/models/follows.model.js"
 import db from "@/lib/db.ts"
 
 db()
@@ -110,7 +111,7 @@ export async function getUserByClerkId(clerkId: string) {
 
 
 export async function getDbUserId() {
-  
+
   const { userId: clerkId } = await auth()
 
   if (!clerkId) return null;
@@ -120,4 +121,92 @@ export async function getDbUserId() {
   if (!user) throw new Error("User not found")
 
   return user._id;
+}
+
+export async function getAllFollowers() {
+
+  const userId = await getDbUserId()
+
+  if (!userId) console.log("User Not Found")
+
+  const followers = await Follows.aggregate([
+    {
+      $match: {
+        following: userId
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "following",
+        foreignField: "_id",
+        as: "followers"
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "follower",
+        foreignField: "_id",
+        as: "usersFollowing"
+      }
+    },
+  ])
+
+  return followers
+
+  /*
+  [
+  {
+    _id: ...,
+    follower: x _id,
+    following: y _id,
+    followers: {},
+    usersFollowing: {},
+    createdAt: ...
+  },
+  {
+    _id: ...,
+    follower: x _id,
+    following: y _id,
+    followers: {},
+    usersFollowing: {},
+    createdAt: ...
+  },
+  ]
+  */
+
+}
+
+export async function getRandomUsers() {
+
+  const userId = await getDbUserId()
+
+  if (!userId) {
+    console.log("User Not Found")
+    return []
+  }
+
+  // Get all followers
+  const followers = await getAllFollowers()
+
+  // Collect targetIds (users you follow)
+  let targetIds = []
+  for (let i = 0; i < followers.length; i++) {
+    targetIds.push(followers[i].follower)
+  }
+
+  const user = await User.aggregate([
+    {
+      $match: {
+        $and: [
+          { _id: { $ne: userId } },       // exclude yourself
+          { _id: { $nin: targetIds } }    // exclude the ones you follow
+        ]
+      }
+    },
+    { $sample: { size: 3 } }
+  ])
+
+  return user
 }

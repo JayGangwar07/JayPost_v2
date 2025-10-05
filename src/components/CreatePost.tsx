@@ -8,7 +8,7 @@ import { Textarea } from "./ui/textarea.tsx";
 import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
 import { Button } from "./ui/button.tsx";
 import { createPost } from "@/actions/post.action.ts";
-//import toast from "react-hot-toast";
+import toast from "react-hot-toast";
 //import ImageUpload from "./ImageUpload.tsx";
 
 export default function CreatePost() {
@@ -32,12 +32,16 @@ export default function CreatePost() {
         setContent("")
         setImageUrl("")
         setShowImageUpload(false)
+
+        toast.success("Post Created Sucessfully!!!")
+
       }
 
     }
 
     catch (err) {
-      throw new Error("CreatePost.tsx: Post Creation Failed")
+      toast.error("Post Creation Failed")
+      console.error("CreatePost.tsx: Post Creation Failed")
     }
 
     finally {

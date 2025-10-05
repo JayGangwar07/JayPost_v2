@@ -44,10 +44,7 @@ export async function createPost(content, imageUrl) {
 
     console.log("Post: ", post)
 
-    return {
-      success: true,
-      post
-    }
+    return {success: true}
 
   }
 

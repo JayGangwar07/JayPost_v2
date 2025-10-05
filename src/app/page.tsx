@@ -11,8 +11,9 @@ import {
 import { Button } from "../components/ui/button.tsx"
 import ModeToggle from "../components/ModeToggle.tsx"
 import { currentUser } from "@clerk/nextjs/server"
-import db from "@/lib/db.ts"
-import CreatePost from "@/components/CreatePost.tsx"
+import db from "@/lib/db"
+import CreatePost from "@/components/CreatePost"
+import WhoToFollow from "@/components/WhoToFollow"
 
 export default async function Home() {
 
@@ -27,7 +28,7 @@ export default async function Home() {
       </div>
 
       <div className="hidden lg:block lg:col-span-4 sticky top-20">
-        Who To Follow
+        <WhoToFollow />
       </div>
 
     </div>
