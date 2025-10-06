@@ -3,6 +3,7 @@
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { User } from "@/models/user.model.js"
 import { Follows } from "@/models/follows.model.js"
+import { Notification } from "@/models/notification.model.js"
 import db from "@/lib/db.ts"
 
 db()
@@ -154,28 +155,6 @@ export async function getAllFollowers() {
   ])
 
   return followers
-
-  /*
-  [
-  {
-    _id: ...,
-    follower: x _id,
-    following: y _id,
-    followers: {},
-    usersFollowing: {},
-    createdAt: ...
-  },
-  {
-    _id: ...,
-    follower: x _id,
-    following: y _id,
-    followers: {},
-    usersFollowing: {},
-    createdAt: ...
-  },
-  ]
-  */
-
 }
 
 export async function getRandomUsers() {
@@ -187,10 +166,8 @@ export async function getRandomUsers() {
     return []
   }
 
-  // Get all followers
   const followers = await getAllFollowers()
 
-  // Collect targetIds (users you follow)
   let targetIds = []
   for (let i = 0; i < followers.length; i++) {
     targetIds.push(followers[i].follower)
@@ -209,4 +186,62 @@ export async function getRandomUsers() {
   ])
 
   return user
+}
+
+export async function toggleFollow(id: string) {
+
+  try {
+    // id = user to follow
+
+    // Current User
+    const userId = await getDbUserId()
+
+    if (userId === id) return { success: false, message: "You cannot follow yourself" }
+
+
+    if (userId == id) console.error("You can't follow yourself")
+
+    const alreadyFollowing = await Follows.findOne({
+      follower: userId,
+      following: id
+    })
+
+
+    if (alreadyFollowing) {
+      await Follows.deleteOne({
+        follower: userId,
+        following: id
+      })
+      return {
+        success: true,
+        unfollowed: true
+      }
+    }
+
+    const follow = await Follows.create({
+      follower: userId,
+      following: id
+    })
+
+    const notification = await Notification.create({
+      user: id,
+      creator: userId,
+      type: "FOLLOW"
+    })
+    
+    if (!follow || !notification) throw new Error("Couldn't create follow or notification")
+
+    console.log(follow, notification)
+
+    return {
+      success: true,
+      followed: true
+    }
+  }
+
+  catch (err) {
+    console.error(err)
+    return { success: false, error: "Something went wrong in toggleFollow()" }
+  }
+
 }
