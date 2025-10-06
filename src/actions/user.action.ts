@@ -1,10 +1,12 @@
 "use server"
 
 import { auth, currentUser } from "@clerk/nextjs/server"
+import { revalidatePath } from "next/cache"
 import { User } from "@/models/user.model.js"
 import { Follows } from "@/models/follows.model.js"
 import { Notification } from "@/models/notification.model.js"
 import db from "@/lib/db.ts"
+import mongoose from "mongoose"
 
 db()
 
@@ -188,7 +190,7 @@ export async function getRandomUsers() {
   return user
 }
 
-export async function toggleFollow(id: string) {
+/*export async function toggleFollow(id: string) {
 
   try {
     // id = user to follow
@@ -228,7 +230,7 @@ export async function toggleFollow(id: string) {
       creator: userId,
       type: "FOLLOW"
     })
-    
+
     if (!follow || !notification) throw new Error("Couldn't create follow or notification")
 
     console.log(follow, notification)
@@ -244,4 +246,85 @@ export async function toggleFollow(id: string) {
     return { success: false, error: "Something went wrong in toggleFollow()" }
   }
 
+}*/
+
+export async function toggleFollow(id: string) {
+
+  const session = await mongoose.startSession()
+  session.startTransaction()
+
+  try {
+    const userId = await getDbUserId()
+
+    if (!userId || userId.toString() === id.toString()) {
+      await session.abortTransaction()
+      session.endSession()
+      return {
+        success: false,
+        message: "You cannot follow yourself"
+      }
+    }
+
+    const alreadyFollowing = await Follows.findOne(
+      { follower: userId, following: id },
+      null,
+      { session }
+    )
+
+    if (alreadyFollowing) {
+      await Follows.deleteOne(
+        { follower: userId, following: id },
+        { session }
+      )
+
+      await session.commitTransaction()
+      session.endSession()
+
+      return { success: true, unfollowed: true }
+    }
+
+    const follow = await Follows.create(
+      [
+        {
+          follower: userId,
+          following: id,
+        },
+      ],
+      { session }
+    )
+
+    const notification = await Notification.create(
+      [
+        {
+          user: id,
+          creator: userId,
+          type: "FOLLOW",
+        },
+      ],
+      { session }
+    )
+
+    if (!follow || !notification) {
+      throw new Error("Couldn't create follow or notification")
+    }
+
+    await session.commitTransaction()
+    session.endSession()
+
+    revalidatePath("/")
+
+    return {
+      success: true,
+      followed: true
+    }
+  } catch (err) {
+    await session.abortTransaction()
+    session.endSession()
+
+    console.error("toggleFollow error:", err)
+    return {
+      success: false,
+      error: "Something went wrong in toggleFollow()"
+    }
+  }
 }

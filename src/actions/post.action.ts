@@ -8,29 +8,6 @@ import { revalidatePath } from "next/cache"
 
 export async function createPost(content, imageUrl) {
 
-  /*const { userId } = await auth()
-  
-  const user = await currentUser()
-  
-  if (!userId || !user) throw new Error("post.action.ts: User Not Found")
-  
-  const dbUser = await User.findOne({
-    $or: [
-      { clerkId: userId },
-      { email: user.emailAddresses[0].emailAddress }
-    ]
-  })
-  
-  if (!dbUser) throw new Error("postaction: User not found")
-  
-  const post = await Post.create({
-    content,
-    image: imageUrl,
-    author: dbUser._id
-  })
-  
-  console.log(post)*/
-
   try {
     const userId = await getDbUserId()
 
@@ -44,7 +21,7 @@ export async function createPost(content, imageUrl) {
 
     console.log("Post: ", post)
 
-    return {success: true}
+    return { success: true }
 
   }
 
@@ -53,6 +30,76 @@ export async function createPost(content, imageUrl) {
     return {
       success: false,
       err
+    }
+  }
+
+}
+
+export async function getPosts() {
+
+  try {
+
+    const posts = await Post.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author"
+        }
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "post",
+          as: "comments",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "author"
+              }
+            },
+            {
+              $sort: {
+                "createdAt": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "post",
+          as: "likes"
+        }
+      },
+      {
+        $addFields: {
+          commentsCount: { $size: "$comments" },
+          likesCount: { $size: "$likes" }
+        }
+      },
+      {
+        $sort: {
+          "createdAt": -1
+        }
+      }
+    ])
+
+    return posts
+
+  }
+
+  catch (err) {
+    console.error(err)
+    return {
+      success: false
     }
   }
 
