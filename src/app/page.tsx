@@ -16,6 +16,7 @@ import CreatePost from "@/components/CreatePost"
 import WhoToFollow from "@/components/WhoToFollow"
 import { getPosts } from "@/actions/post.action"
 import PostCard from "@/components/PostCard.tsx"
+import { getDbUserId } from "@/actions/user.action"
 
 export default async function Home() {
 
@@ -24,20 +25,22 @@ export default async function Home() {
   const user = await currentUser()
   const posts = await getPosts()
 
-  console.log(posts)
+  const dbUserId = (await getDbUserId())?.toString()
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
-      <div className="lg:grid-cols-6">
+      <div className="lg:grid-cols-6 space-y-1">
 
         {user ? <CreatePost /> : null}
 
-        {posts.map((post) => {
-          <PostCard
+        {posts.map((post) => (
+          < PostCard
             key={post._id}
             post={post}
+            dbUserId={dbUserId}
           />
-        })}
+        ))}
 
       </div>
 

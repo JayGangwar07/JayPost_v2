@@ -1,9 +1,18 @@
-import { BellIcon, HomeIcon, UserIcon } from "lucide-react";
+import {
+  BellIcon,
+  HomeIcon,
+  UserIcon
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  SignInButton,
+  UserButton
+} from "@clerk/nextjs";
 import ModeToggle from "./ModeToggle.tsx";
 import { currentUser } from "@clerk/nextjs/server";
+import { useEffect } from "react"
+import toast from "react-hot-toast"
 
 async function DesktopNavbar() {
   const user = await currentUser();
