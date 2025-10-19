@@ -190,63 +190,6 @@ export async function getRandomUsers() {
   return user
 }
 
-/*export async function toggleFollow(id: string) {
-
-  try {
-    // id = user to follow
-
-    // Current User
-    const userId = await getDbUserId()
-
-    if (userId === id) return { success: false, message: "You cannot follow yourself" }
-
-
-    if (userId == id) console.error("You can't follow yourself")
-
-    const alreadyFollowing = await Follows.findOne({
-      follower: userId,
-      following: id
-    })
-
-
-    if (alreadyFollowing) {
-      await Follows.deleteOne({
-        follower: userId,
-        following: id
-      })
-      return {
-        success: true,
-        unfollowed: true
-      }
-    }
-
-    const follow = await Follows.create({
-      follower: userId,
-      following: id
-    })
-
-    const notification = await Notification.create({
-      user: id,
-      creator: userId,
-      type: "FOLLOW"
-    })
-
-    if (!follow || !notification) throw new Error("Couldn't create follow or notification")
-
-    console.log(follow, notification)
-
-    return {
-      success: true,
-      followed: true
-    }
-  }
-
-  catch (err) {
-    console.error(err)
-    return { success: false, error: "Something went wrong in toggleFollow()" }
-  }
-
-}*/
 
 export async function toggleFollow(id: string) {
 
@@ -256,14 +199,24 @@ export async function toggleFollow(id: string) {
   try {
     const userId = await getDbUserId()
 
-    if (!userId || userId.toString() === id.toString()) {
-      await session.abortTransaction()
-      session.endSession()
+    if (!userId) {
+      await session.abortTransaction();
+      await session.endSession();
+      return {
+        success: false,
+        message: "Invalid user"
+      };
+    }
+
+    if (String(userId) === String(id)) {
+      await session.abortTransaction();
+      await session.endSession();
       return {
         success: false,
         message: "You cannot follow yourself"
-      }
+      };
     }
+
 
     const alreadyFollowing = await Follows.findOne(
       { follower: userId, following: id },

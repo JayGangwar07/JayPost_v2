@@ -156,7 +156,7 @@ export async function toggleLike(postId) {
         user: userId
       }], { session })
 
-      if (post.author !== userId) {
+      if (!post.author.equals(userId)) {
         await Notification.create([{
           user: post.author, // Reciever
           creator: userId, // Person who liked
@@ -214,7 +214,7 @@ export async function createComment(postId: string, content: string) {
     );
 
     // Send notification 
-    if (userId !== post.author) {
+    if (!post.author.equals(userId)) {
 
       await Notification.create(
         [
@@ -264,10 +264,10 @@ export async function deletePost(postId: string) {
     console.log("author: ", post.author)
 
     // if (userId.toString() !== post.author.toString()) throw new Error("Unauthorized")
-    
+
     if (!post.author.equals(userId)) {
-    throw new Error("Unauthorized");
-}
+      throw new Error("Unauthorized");
+    }
 
     await Post.findByIdAndDelete(postId)
 
