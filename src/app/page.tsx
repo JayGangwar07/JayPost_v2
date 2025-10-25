@@ -35,10 +35,11 @@ export default async function Home() {
         {user ? <CreatePost /> : null}
 
         {posts.map((post) => (
-          < PostCard
+          <PostCard
             key={post._id}
             post={post}
             dbUserId={dbUserId}
+            image={post.image}
           />
         ))}
 

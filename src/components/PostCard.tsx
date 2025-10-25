@@ -21,8 +21,6 @@ export default function PostCard({ post, dbUserId }: { post: Post, dbUserId: str
 
   const user = useUser()
 
-  if (user.user) console.log(67)
-
 
   const [newComment, setNewComment] = useState("")
   const [isCommenting, setIsCommenting] = useState(false)

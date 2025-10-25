@@ -1,54 +1,51 @@
 "use client"
 
+import React from "react"
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-import { Card, CardContent } from "./ui/card.tsx";
-import { Avatar, AvatarImage } from "./ui/avatar.tsx";
-import { Textarea } from "./ui/textarea.tsx";
-import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
-import { Button } from "./ui/button.tsx";
-import { createPost } from "@/actions/post.action.ts";
+import { Card, CardContent } from "./ui/card";
+import { Avatar, AvatarImage } from "./ui/avatar";
+import { Textarea } from "./ui/textarea";
+import { ImageIcon, Loader2Icon, SendIcon, XIcon } from "lucide-react";
+import { Button } from "./ui/button";
+import { createPost } from "@/actions/post.action";
 import toast from "react-hot-toast";
-//import ImageUpload from "./ImageUpload.tsx";
 
 export default function CreatePost() {
+  const { user } = useUser();
+  const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [isPosting, setIsPosting] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
-  const { user } = useUser()
-  const [content, setContent] = useState("")
-  const [imageUrl, setImageUrl] = useState("")
-  const [isPosting, setIsPosting] = useState(false)
-  const [showImageUpload, setShowImageUpload] = useState(false)
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImageUrl(url);
+      setShowImageUpload(true);
+    }
+  };
 
   const handleSubmit = async () => {
+    if (!content.trim() && !imageUrl) return;
 
-    if (!content.trim() && !imageUrl) return
-
-    setIsPosting(true)
-
+    setIsPosting(true);
     try {
-      const post = await createPost(content, imageUrl)
-
+      const post = await createPost(content, imageUrl);
       if (post.success) {
-        setContent("")
-        setImageUrl("")
-        setShowImageUpload(false)
-
-        toast.success("Post Created Sucessfully!!!")
-
+        setContent("");
+        setImageUrl("");
+        setShowImageUpload(false);
+        toast.success("Post Created Successfully!");
       }
-
+    } catch (err) {
+      toast.error("Post Creation Failed");
+      console.error("CreatePost.tsx: Post Creation Failed", err);
+    } finally {
+      setIsPosting(false);
     }
-
-    catch (err) {
-      toast.error("Post Creation Failed")
-      console.error("CreatePost.tsx: Post Creation Failed")
-    }
-
-    finally {
-      setIsPosting(false)
-    }
-
-  }
+  };
 
   return (
     <Card className="mb-6">
@@ -67,17 +64,33 @@ export default function CreatePost() {
             />
           </div>
 
-          {(showImageUpload || imageUrl) && (
-            <div className="border rounded-lg p-4">
-              <ImageUpload
-                endpoint="postImage"
-                value={imageUrl}
-                onChange={(url) => {
-                  setImageUrl(url);
-                  if (!url) setShowImageUpload(false);
-                }}
+          {imageUrl && (
+            <div className="relative border rounded-lg p-2">
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="max-h-60 w-full object-cover rounded-lg"
               />
+              <button
+                type="button"
+                onClick={() => setImageUrl("")}
+                className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-full p-1 text-white hover:bg-opacity-70"
+              >
+                <XIcon className="size-4" />
+              </button>
             </div>
+          )}
+
+          {showImageUpload && (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={isPosting}
+              className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 
+                         file:rounded-full file:border-0 file:text-sm file:font-semibold 
+                         file:bg-primary file:text-white hover:file:bg-primary/90"
+            />
           )}
 
           <div className="flex items-center justify-between border-t pt-4">
@@ -94,6 +107,7 @@ export default function CreatePost() {
                 Photo
               </Button>
             </div>
+
             <Button
               className="flex items-center"
               onClick={handleSubmit}
@@ -115,5 +129,5 @@ export default function CreatePost() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
