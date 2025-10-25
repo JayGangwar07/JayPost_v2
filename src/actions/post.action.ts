@@ -11,6 +11,8 @@ import { revalidatePath } from "next/cache"
 import mongoose from "mongoose"
 
 export async function createPost(content, imageUrl) {
+  
+  console.log(imageUrl)
 
   try {
     const userId = await getDbUserId()
