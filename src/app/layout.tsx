@@ -8,6 +8,7 @@ import Navbar from "../components/Navbar.tsx"
 import Sidebar from "@/components/Sidebar.tsx"
 import { Toaster } from "react-hot-toast"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import BottomBar from "@/components/BottomBar"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,7 @@ export default function RootLayout({
 
                 </div>
               </main>
+              <BottomBar />
             </div>
             <SpeedInsights />
             <Toaster />
