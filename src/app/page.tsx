@@ -29,7 +29,7 @@ export default async function Home() {
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
+    <div className="grid grid-cols-1 gap-4">
       <div className="lg:grid-cols-6 space-y-1">
 
         {user ? <CreatePost /> : null}
